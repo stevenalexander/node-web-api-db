@@ -1,20 +1,48 @@
 var express = require('express')
-var router = express.Router()
+var shoppingList = require('../lib/shoppingList')
 
-router.get('/', function (req, res, next) {
-  res.json({ items: [{ name: 'Cheese' }, { name: 'Butter' }, { name: 'Milk' }] })
-})
+module.exports = function (app) {
+  var route = express.Router()
 
-router.get('/:id', function (req, res, next) {
-  res.json({name: 'Cheese'})
-})
+  app.use('/', route)
 
-router.post('/', function (req, res, next) {
-  res.status(201).send({name: 'Cheese'})
-})
+  route.get('/', function (req, res) {
+    shoppingList.getItems(function (error, items) {
+      if (!error) {
+        res.json(items)
+      } else {
+        res.status(500).json('error', {message: error.message, error: error})
+      }
+    })
+  })
 
-router.delete('/:id', function (req, res, next) {
-  res.sendStatus(204)
-})
+  route.get('/:id', function (req, res) {
+    shoppingList.getItem(req.param.id, function (error, item) {
+      if (!error) {
+        res.json(item)
+      } else {
+        res.status(500).json('error', {message: error.message, error: error})
+      }
+    })
+  })
 
-module.exports = router
+  route.post('/', function (req, res) {
+    shoppingList.addItem(req.body, function (error, newItem) {
+      if (!error) {
+        res.status(201).json(newItem)
+      } else {
+        res.status(500).json('error', {message: error.message, error: error})
+      }
+    })
+  })
+
+  route.delete('/:id', function (req, res) {
+    shoppingList.deleteItem(req.param.id, function (error) {
+      if (!error) {
+        res.sendStatus(204)
+      } else {
+        res.status(500).json('error', {message: error.message, error: error})
+      }
+    })
+  })
+}
