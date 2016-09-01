@@ -12,7 +12,6 @@ describe('index', function () {
   var request
   var called = {
     getItems: false,
-    getItem: false,
     addItem: false,
     deleteItem: false
   }
@@ -28,10 +27,6 @@ describe('index', function () {
         getItems: function (callback) {
           called.getItems = true
           callback(error, items)
-        },
-        getItem: function (id, callback) {
-          called.getItem = true
-          callback(error, item)
         },
         addItem: function (newItem, callback) {
           called.addItem = true
@@ -57,23 +52,9 @@ describe('index', function () {
       request
         .get('/')
         .expect(200, function (error, response) {
+          expect(called.getItems).to.be.true
           expect(error).to.be.null
           expect(response.text).to.equal(JSON.stringify(items))
-          done()
-        })
-    })
-  })
-
-  describe('GET /1234', function () {
-    it('should respond with a 200 and return item', function (done) {
-      error = null
-      item = {name: 'Milk'}
-
-      request
-        .get('/1234')
-        .expect(200, function (error, response) {
-          expect(error).to.be.null
-          expect(response.text).to.equal(JSON.stringify(item))
           done()
         })
     })
