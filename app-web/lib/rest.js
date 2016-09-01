@@ -1,5 +1,5 @@
 var request = require('request')
-var apiUrl = 'http://localhost:3001/'
+var apiUrl = process.env.API_URL || 'http://localhost:3001/'
 
 module.exports = {
   getItems: function (callback) {

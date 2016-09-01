@@ -1,0 +1,29 @@
+version: '2'
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+     - MYSQL_ROOT_PASSWORD=admin
+     - MYSQL_DATABASE=shoppinglist
+  node-web:
+    build: ./app-web
+    ports:
+     - "3000:3000"
+    environment:
+     - API_URL=http://node-api:3001/
+    links:
+     - node-api
+    depends_on:
+     - node-api
+  node-api:
+    build: ./app-api
+    environment:
+     - DB_CONNECTION=mysql://root:admin@mysql/shoppinglist
+    ports:
+     - "3001:3001"
+    expose:
+     - "3001"
+    links:
+     - mysql
+    depends_on:
+     - mysql
