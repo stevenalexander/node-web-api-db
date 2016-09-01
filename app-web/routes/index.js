@@ -11,10 +11,31 @@ module.exports = function (app) {
       if (!error) {
         res.render('index', { title: 'Shopping List', items })
       } else {
-        res.status(500).render('error', {
-          message: error.message,
-          error: error
-        })
+        res.status(500).render('error', {message: error.message, error: error})
+      }
+    })
+  })
+
+  route.post('/add', function (req, res) {
+    var item = { name: req.body.name }
+    rest.addItem(item, function (error, newItem) {
+      if (!error) {
+        res.redirect('/')
+      } else {
+        res.status(500).render('error', {message: error.message, error: error})
+      }
+    })
+  })
+
+  route.get('/delete/:id', function (req, res) {
+    console.log('delete')
+    rest.deleteItem(req.params.id, function (error) {
+      console.log('delete rest')
+      if (!error) {
+        console.log('delete no error')
+        res.redirect('/')
+      } else {
+        res.status(500).render('error', {message: error.message, error: error})
       }
     })
   })

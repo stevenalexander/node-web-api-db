@@ -4,22 +4,27 @@ var sinon = require('sinon')
 var supertest = require('supertest')
 var expect = require('chai').expect
 var express = require('express')
+var bodyParser = require('body-parser')
 
-describe('GET /', function () {
+describe('index', function () {
   var restGetItems
+  var restAddItem
   var request
 
   beforeEach(function () {
     restGetItems = sinon.stub()
+    restAddItem = sinon.stub()
 
     // Setting up the app this way means all dependencies from app.js are explicitly defined per route file
     var app = express()
     app.set('views', './views')
     app.set('view engine', 'pug')
+    app.use(bodyParser.urlencoded({ extended: false }))
 
     var route = proxyquire('../../routes/index', {
       '../../lib/rest': {
-        getItems: restGetItems
+        getItems: restGetItems,
+        addItem: restAddItem
       }
     })
 
@@ -30,24 +35,40 @@ describe('GET /', function () {
     request = supertest(app)
   })
 
-  it('should respond with a 500 on rest client error', function (done) {
-    restGetItems.yields({ message: 'error' }, null)
+  describe('GET /', function () {
+    it('should respond with a 500 on rest client error', function (done) {
+      restGetItems.yields({ message: 'error' }, null)
 
-    request
-      .get('/')
-      .expect(500)
-      .end(done())
+      request
+        .get('/')
+        .expect(500)
+        .end(done())
+    })
+
+    it('should respond with a 200 and render items', function (done) {
+      restGetItems.yields(null, {items: [{name: 'Milk'}]})
+
+      request
+        .get('/')
+        .expect(200, function (error, response) {
+          expect(error).to.be.null
+          expect(response.text).to.contain('Milk')
+          done()
+        })
+    })
   })
 
-  it('should respond with a 200 and render items', function (done) {
-    restGetItems.yields(null, {items: [{name: 'Milk'}]})
+  describe('POST /add', function () {
+    it('should respond with a 200 and redirect', function (done) {
+      restAddItem.yields(null, {name: 'Cheese'})
 
-    request
-      .get('/')
-      .expect(200, function (error, response) {
-        expect(error).to.be.null
-        expect(response.text).to.contain('Milk')
-        done()
-      })
+      request
+        .post('/add')
+        .send({name: 'Cheese'})
+        .expect(302, function (error, response) {
+          expect(error).to.be.null
+          done()
+        })
+    })
   })
 })

@@ -2,6 +2,15 @@ extends layout
 
 block content
   h1= title
-  ul
-  each item in items
-    li= item.name
+  div
+    ul
+    each item in items
+      li
+        span= item.name
+        | &nbsp;
+        a(href='/delete/' + item.id) x
+
+  div
+    form(action='/add', method='post')
+      input(name='name')
+      input(type='submit', value='add')
