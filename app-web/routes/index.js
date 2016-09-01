@@ -28,11 +28,8 @@ module.exports = function (app) {
   })
 
   route.get('/delete/:id', function (req, res) {
-    console.log('delete')
     rest.deleteItem(req.params.id, function (error) {
-      console.log('delete rest')
       if (!error) {
-        console.log('delete no error')
         res.redirect('/')
       } else {
         res.status(500).render('error', {message: error.message, error: error})
