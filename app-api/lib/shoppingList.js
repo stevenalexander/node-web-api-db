@@ -40,7 +40,6 @@ module.exports = {
       if (error) {
         console.log(error)
       }
-      console.log('deleted ' + result.affectedRows + ' rows')
       callback(error)
     })
   }
